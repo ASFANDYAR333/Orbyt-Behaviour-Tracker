@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Orbyt Laptops · Behaviour Tracker</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Instrument+Sans:wght@400;500;600&display=swap">
+<style>
+:root{--bg:#eef1f5;--surface:#fff;--ink:#101a2e;--mute:#5b6679;--line:#d5dbe4;--accent:#2848ff;--hot:#ff5a36;--ok:#12906b;--r:10px;
+--head:'Bricolage Grotesque','Segoe UI',sans-serif;--body:'Instrument Sans','Segoe UI',sans-serif}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1424;--surface:#16203a;--ink:#e8edf8;--mute:#9aa6bf;--line:#2a3757;--accent:#7a92ff}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--body);position:relative}
+h1,h2,h3{font-family:var(--head);line-height:1.08;margin:0 0 .5em;letter-spacing:-.02em}
+h1{font-size:clamp(2.4rem,6vw,4.4rem);font-weight:800}h2{font-size:clamp(1.6rem,3vw,2.3rem)}h3{font-size:1.2rem}
+p{max-width:62ch}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+section{padding:72px 0}
+nav{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;gap:20px;height:60px}
+nav b{font:800 1.25rem var(--head);margin-right:auto}
+nav a{text-decoration:none;color:var(--mute);font-weight:500}nav a:hover{color:var(--ink)}
+.btn{font:600 .95rem var(--body);padding:11px 18px;border-radius:var(--r);border:1.5px solid var(--ink);background:var(--ink);color:var(--bg);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+.hero .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center}
+.hero p{font-size:1.15rem;color:var(--mute)}
+.row{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
+.lap{aspect-ratio:4/3;position:relative}
+.lap i{position:absolute;inset:6% 10% 20%;border:10px solid var(--ink);border-radius:14px 14px 4px 4px;background:linear-gradient(135deg,var(--accent),var(--hot))}
+.lap u{position:absolute;left:0;right:0;bottom:14%;height:16px;background:var(--ink);border-radius:0 0 22px 22px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:8px}
+.card .price{font:700 1.5rem var(--head)}.card small{color:var(--mute)}
+.card[hidden]{display:none}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+.chip{border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:99px;padding:7px 16px;font:500 .9rem var(--body);cursor:pointer}
+.chip[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff}
+table{width:100%;border-collapse:collapse;background:var(--surface);border-radius:var(--r);overflow:hidden}
+th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line)}
+.scroll{overflow-x:auto}
+details{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 18px;margin-bottom:10px}
+summary{cursor:pointer;font-weight:600}
+form{display:flex;gap:10px;flex-wrap:wrap}
+input{flex:1;min-width:200px;padding:11px 14px;border-radius:var(--r);border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:inherit}
+footer{padding:40px 0 120px;color:var(--mute);border-top:1px solid var(--line)}
+#dock{position:fixed;right:16px;bottom:16px;z-index:1000}
+#tab{background:var(--ink);color:var(--bg);border:0;border-radius:99px;padding:12px 20px;font:600 .95rem var(--body);cursor:pointer;box-shadow:0 6px 24px rgba(0,0,0,.25);display:flex;gap:10px;align-items:center}
+#tab span{width:10px;height:10px;border-radius:50%;background:var(--mute)}
+#tab.rec span{background:var(--hot);animation:p 1.2s infinite}
+@keyframes p{50%{opacity:.25}}
+#panel{position:absolute;right:0;bottom:56px;width:min(400px,calc(100vw - 32px));max-height:min(78vh,680px);overflow:auto;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:14px;box-shadow:0 16px 48px rgba(0,0,0,.3);padding:16px}
+#panel[hidden]{display:none}
+#panel h3{margin:0 0 10px;display:flex;justify-content:space-between;align-items:center}
+.bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.bar button,.tabs button{font:600 .8rem var(--body);padding:7px 11px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.bar button.on,.tabs button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.bar .go{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tabs{display:flex;gap:6px;margin-bottom:12px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.stats div{background:var(--bg);border-radius:8px;padding:8px 10px}
+.stats b{display:block;font:700 1.25rem var(--head)}.stats small{color:var(--mute);font-size:.75rem}
+.meter{height:8px;border-radius:5px;background:var(--bg);overflow:hidden;margin:4px 0 12px}
+.meter i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s}
+.sec{display:grid;grid-template-columns:90px 1fr 46px;gap:8px;align-items:center;font-size:.82rem;margin-bottom:5px}
+.sec .meter{margin:0}.sec .meter i{background:var(--hot)}
+.sec.vis b::after{content:" ●";color:var(--ok)}
+#map{width:100%;border-radius:8px;background:var(--bg);display:block}
+#log{font:12px/1.5 ui-monospace,Menlo,monospace;max-height:240px;overflow:auto;background:var(--bg);border-radius:8px;padding:8px}
+#log div{border-bottom:1px solid var(--line);padding:2px 0}
+.pane[hidden]{display:none}
+#viz{position:absolute;top:0;left:0;pointer-events:none;z-index:900}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:99px;z-index:1100;opacity:0;transition:opacity .2s;pointer-events:none}
+#toast.show{opacity:1}
+@media(max-width:760px){.hero .wrap{grid-template-columns:1fr}nav a{display:none}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+.tools{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start;margin-bottom:22px}.tools .chips{margin:0;flex:1 1 100%}
+.tools input{flex:1;min-width:180px}.tools select{padding:11px 14px;border-radius:var(--r);border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:inherit}
+.pic{background:linear-gradient(160deg,color-mix(in srgb,var(--accent) 10%,var(--bg)),var(--bg));border-radius:8px;padding:6px}.pic svg{width:100%;display:block}
+.card h3{margin:4px 0 0}.card .tag{font:600 .78rem var(--body);color:var(--accent)}
+.lnks{display:flex;gap:8px;flex-wrap:wrap;margin-top:2px}.lnk{font:600 .82rem var(--body);padding:6px 12px;border-radius:8px;border:1.5px solid var(--line);text-decoration:none;background:var(--surface)}.lnk:hover{border-color:var(--accent);color:var(--accent)}
+.lnk.am{background:#ffb81c;border-color:#ffb81c;color:#111}.lnk.ali{background:#e43225;border-color:#e43225;color:#fff}
+.card .row{margin-top:auto}.card .row .btn{padding:9px 14px}
+.empty{grid-column:1/-1;padding:32px;text-align:center;color:var(--mute);border:1.5px dashed var(--line);border-radius:var(--r)}
+#modal{position:fixed;inset:0;z-index:1050;background:rgba(8,12,24,.6);display:grid;place-items:center;padding:16px}#modal[hidden]{display:none}
+#modal .box{background:var(--surface);border-radius:14px;max-width:760px;width:100%;max-height:92vh;overflow:auto;padding:24px;display:grid;grid-template-columns:1fr 1fr;gap:20px;position:relative}
+#modal dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:12px 0}#modal dt{color:var(--mute)}#modal dd{margin:0;font-weight:500}
+#modal ul{padding-left:18px;margin:8px 0}.x{position:absolute;right:12px;top:10px;background:none;border:0;font-size:1.6rem;cursor:pointer;color:var(--ink)}
+#cart{position:fixed;right:16px;top:70px;z-index:1040;width:min(360px,calc(100vw - 32px));max-height:calc(100vh - 160px);overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 16px 48px rgba(0,0,0,.3);padding:16px}#cart[hidden]{display:none}
+#cart .it{border-bottom:1px solid var(--line);padding:10px 0}#cart .it b{display:flex;justify-content:space-between}
+.pill{background:var(--accent);color:#fff;border-radius:99px;padding:1px 9px;font-size:.8rem}
+@media(max-width:700px){#modal .box{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav><div class="wrap"><b>Orbyt</b><a href="#range">Range</a><a href="#compare">Compare</a><a href="#faq">Help</a><a href="#alerts">Price alerts</a><button class="btn ghost" id="cartBtn">Shortlist (<span id="cc">0</span>)</button></div></nav>
+
+<main>
+<section class="hero" id="top" data-sec="Hero"><div class="wrap">
+ <div><h1>Laptops chosen by what you actually do with them.</h1>
+ <p>Tell us if you code, edit video, or just write. We show the three machines worth your money and why the rest aren't.</p>
+ <div class="row"><button class="btn" id="fm">Find my laptop</button><button class="btn ghost" id="ht">Compare all models</button></div></div>
+ <div class="lap" aria-hidden="true"><i></i><u></u></div>
+</div></section>
+
+<section id="range" data-sec="Range"><div class="wrap">
+ <h2>The range</h2>
+ <div class="tools">
+  <div class="chips" role="group" aria-label="Filter laptops">
+   <button class="chip" aria-pressed="true" data-f="all">All</button><button class="chip" aria-pressed="false" data-f="ultra">Ultrabook</button><button class="chip" aria-pressed="false" data-f="gaming">Gaming</button><button class="chip" aria-pressed="false" data-f="creator">Creator</button><button class="chip" aria-pressed="false" data-f="budget">Budget</button>
+  </div>
+  <input id="q" type="search" placeholder="Search by name or chip" aria-label="Search laptops">
+  <select id="so" aria-label="Sort"><option value="f">Featured</option><option value="l">Price: low to high</option><option value="h">Price: high to low</option><option value="b">Battery life</option><option value="w">Lightest</option></select>
+ </div>
+ <div class="grid" id="grid"></div>
+</div></section>
+
+<section id="compare" data-sec="Compare"><div class="wrap">
+ <h2>Side by side</h2>
+ <div class="scroll"><table id="tbl"></table></div>
+</div></section>
+
+<section id="faq" data-sec="Help"><div class="wrap">
+ <h2>Questions people ask</h2>
+ <details><summary>How much RAM do I need?</summary><p>16 GB suits most people. Choose 32 GB for video editing or heavy virtual machines.</p></details>
+ <details><summary>Do you sell the laptops?</summary><p>No. Orbyt helps you choose. Each button opens search results on Amazon, AliExpress or eBay, and the price, warranty and returns are set by the seller.</p></details>
+ <details><summary>Is AliExpress safe for laptops?</summary><p>Check seller ratings, ask for the exact model and region, and confirm warranty. Official brand stores on any marketplace are the safest choice.</p></details>
+</div></section>
+
+<section id="alerts" data-sec="Alerts"><div class="wrap">
+ <h2>Get an alert when a price drops</h2>
+ <form id="af"><input id="ae" type="email" required placeholder="you@example.com" aria-label="Email"><button class="btn">Notify me</button></form>
+</div></section>
+</main>
+<div id="cart" hidden data-ignore></div><div id="modal" hidden><div class="box" role="dialog" aria-modal="true"></div></div>
+<footer data-sec="Footer"><div class="wrap">Orbyt does not sell laptops itself. Buttons open Amazon, AliExpress or eBay search results; prices and specs shown are indicative and vary by region and configuration.</div></footer>
+
+<canvas id="viz"></canvas>
+<div id="toast" role="status"></div>
+
+<div id="dock" data-ignore>
+ <div id="panel" hidden>
+  <h3>Behaviour tracker <small id="state" style="font:500 .8rem var(--body);color:var(--mute)">stopped</small></h3>
+  <div class="bar">
+   <button class="go" id="bToggle">Start tracking</button>
+   <button id="bUndo">Undo click</button>
+   <button id="bExport">Export JSON</button>
+   <button id="bReset">Reset</button>
+  </div>
+  <div class="bar" aria-label="Page overlays">
+   <button data-v="heat">Heatmap</button>
+   <button data-v="dots">Click dots</button>
+   <button data-v="path">Mouse path</button>
+  </div>
+  <div class="tabs"><button class="on" data-p="ov">Overview</button><button data-p="sc">Scatter</button><button data-p="lg">Log</button></div>
+  <div class="pane" id="ov">
+   <div class="stats">
+    <div><b id="sClicks">0</b><small>clicks</small></div><div><b id="sMoves">0</b><small>mouse moves</small></div><div><b id="sRage">0</b><small>rage clicks</small></div>
+    <div><b id="sTime">0s</b><small>tracked time</small></div><div><b id="sScroll">0</b><small>scrolls</small></div><div><b id="sIdle">0s</b><small>tab hidden</small></div>
+   </div>
+   <small>Scroll depth reached: <b id="dTxt">0%</b></small><div class="meter"><i id="dBar"></i></div>
+   <small>Time in view by section</small><div id="secs" style="margin-top:6px"></div>
+  </div>
+  <div class="pane" id="sc" hidden><small>Every click, mapped onto the full page height. Colour shows the order (blue first, orange last).</small><canvas id="map" width="360" height="300"></canvas></div>
+  <div class="pane" id="lg" hidden><div id="log"><div>Nothing recorded yet.</div></div></div>
+ </div>
+ <button id="tab" aria-expanded="false"><span></span>Tracker</button>
+</div>
+
+<script>
+(()=>{
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const S={on:false,clicks:[],moves:[],scrolls:0,maxDepth:0,hidden:0,start:null,elapsed:0,log:[],dwell:{},rage:0,view:{heat:false,dots:false,path:false}};
+const secs=$$('[data-sec]'),vis=new Map();secs.forEach(s=>S.dwell[s.dataset.sec]=0);
+const cv=$('#viz'),cx=cv.getContext('2d'),mp=$('#map'),mx=mp.getContext('2d');
+const DOC=()=>Math.max(document.documentElement.scrollHeight,innerHeight);
+const fmt=n=>n<60?n.toFixed(0)+'s':Math.floor(n/60)+'m '+(n%60).toFixed(0)+'s';
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.k);toast.k=setTimeout(()=>t.classList.remove('show'),1800)}
+function log(m){const t=((S.elapsed+(S.on?(Date.now()-S.start)/1e3:0))).toFixed(1);S.log.unshift(`[${t}s] ${m}`);if(S.log.length>200)S.log.pop();$('#log').innerHTML=S.log.map(l=>`<div>${l.replace(/</g,'&lt;')}</div>`).join('')}
+function label(e){const el=e.target.closest('button,a,summary,input,h1,h2,h3,td,th,p,article')||e.target;return el.tagName.toLowerCase()+(el.textContent.trim()?` "${el.textContent.trim().slice(0,24)}"`:'')}
+function sectionAt(y){let n='—';secs.forEach(s=>{if(y>=s.offsetTop)n=s.dataset.sec});return n}
+
+/* ---- tracking ---- */
+addEventListener('click',e=>{
+ if(!S.on||e.target.closest('[data-ignore]'))return;
+ const c={x:Math.round(e.pageX),y:Math.round(e.pageY),t:+(S.elapsed+(Date.now()-S.start)/1e3).toFixed(2),el:label(e),section:sectionAt(e.pageY)};
+ const prev=S.clicks.slice(-2);
+ if(prev.length===2&&prev.every(p=>Math.hypot(p.x-c.x,p.y-c.y)<40&&c.t-p.t<1.5)){S.rage++;c.rage=true;log('Rage click near '+c.el)}
+ S.clicks.push(c);log(`Click on ${c.el} (${c.section})`);render()
+},true);
+let lm=0;
+addEventListener('mousemove',e=>{if(!S.on)return;const n=Date.now();if(n-lm<60)return;lm=n;S.moves.push({x:e.pageX|0,y:e.pageY|0});if(S.moves.length>4000)S.moves.shift();if(S.view.path)draw();stat()},{passive:true});
+let sl=0;
+addEventListener('scroll',()=>{if(!S.on)return;const d=Math.min(1,(scrollY+innerHeight)/DOC());if(d>S.maxDepth){S.maxDepth=d;if(Math.floor(d*4)>Math.floor((d-.02)*4))log('Scroll depth '+Math.round(d*100)+'%')}clearTimeout(sl);sl=setTimeout(()=>{S.scrolls++;stat()},150);stat()},{passive:true});
+document.addEventListener('visibilitychange',()=>{if(S.on)log(document.hidden?'Tab hidden':'Tab visible')});
+const io=new IntersectionObserver(es=>es.forEach(e=>{const was=vis.get(e.target),now=e.intersectionRatio>=.3||e.intersectionRect.height>innerHeight*.45;vis.set(e.target,now);if(S.on&&was!==now)log(`${e.target.dataset.sec} ${now?'entered':'left'} view`)}),{threshold:[0,.1,.3,.45,.6,1]});
+secs.forEach(s=>io.observe(s));
+setInterval(()=>{if(!S.on)return;if(document.hidden){S.hidden+=.25;return}vis.forEach((v,el)=>{if(v)S.dwell[el.dataset.sec]+=.25});stat()},250);
+
+/* ---- rendering ---- */
+function stat(){
+ const t=S.elapsed+(S.on?(Date.now()-S.start)/1e3:0);
+ $('#sClicks').textContent=S.clicks.length;$('#sMoves').textContent=S.moves.length;$('#sRage').textContent=S.rage;$('#sScroll').textContent=S.scrolls;
+ $('#sTime').textContent=fmt(t);$('#sIdle').textContent=fmt(S.hidden);
+ $('#dTxt').textContent=Math.round(S.maxDepth*100)+'%';$('#dBar').style.width=S.maxDepth*100+'%';
+ const mxv=Math.max(1,...Object.values(S.dwell));
+ $('#secs').innerHTML=secs.map(s=>{const n=s.dataset.sec,v=S.dwell[n];return `<div class="sec ${vis.get(s)?'vis':''}"><b>${n}</b><div class="meter"><i style="width:${v/mxv*100}%"></i></div><span>${fmt(v)}</span></div>`}).join('');
+}
+function draw(){
+ cv.width=document.documentElement.clientWidth;cv.height=DOC();cx.clearRect(0,0,cv.width,cv.height);
+ if(S.view.heat){S.clicks.forEach(c=>{const g=cx.createRadialGradient(c.x,c.y,0,c.x,c.y,60);g.addColorStop(0,'rgba(255,40,0,.45)');g.addColorStop(.5,'rgba(255,170,0,.2)');g.addColorStop(1,'rgba(255,220,0,0)');cx.fillStyle=g;cx.fillRect(c.x-60,c.y-60,120,120)})}
+ if(S.view.path&&S.moves.length>1){cx.strokeStyle='rgba(40,72,255,.55)';cx.lineWidth=2;cx.beginPath();S.moves.forEach((m,i)=>i?cx.lineTo(m.x,m.y):cx.moveTo(m.x,m.y));cx.stroke()}
+ if(S.view.dots){S.clicks.forEach((c,i)=>{cx.fillStyle=c.rage?'#ff2d55':'#12906b';cx.beginPath();cx.arc(c.x,c.y,7,0,7);cx.fill();cx.strokeStyle='#fff';cx.lineWidth=2;cx.stroke();cx.fillStyle='#fff';cx.font='bold 9px sans-serif';cx.textAlign='center';cx.fillText(i+1,c.x,c.y+3)})}
+}
+function scatter(){
+ const W=mp.width,H=mp.height,D=DOC(),pw=document.documentElement.clientWidth;mx.clearRect(0,0,W,H);
+ const cs=getComputedStyle(document.body);mx.strokeStyle=cs.getPropertyValue('--line');mx.fillStyle=cs.color;mx.font='10px sans-serif';
+ secs.forEach(s=>{const y=s.offsetTop/D*H;mx.beginPath();mx.moveTo(0,y);mx.lineTo(W,y);mx.stroke();mx.fillText(s.dataset.sec,4,y+11)});
+ const vy=scrollY/D*H;mx.strokeStyle='#2848ff';mx.strokeRect(0,vy,W,innerHeight/D*H);
+ S.clicks.forEach((c,i)=>{const k=S.clicks.length>1?i/(S.clicks.length-1):0;mx.fillStyle=`hsl(${230-k*200},90%,55%)`;mx.beginPath();mx.arc(c.x/pw*W,c.y/D*H,5,0,7);mx.fill()})
+}
+function render(){stat();draw();if(!$('#sc').hidden)scatter()}
+
+/* ---- controls ---- */
+function toggle(){
+ if(S.on){S.elapsed+=(Date.now()-S.start)/1e3;S.on=false;log('Tracking stopped')}
+ else{S.on=true;S.start=Date.now();log('Tracking started')}
+ $('#bToggle').textContent=S.on?'Stop tracking':'Start tracking';$('#state').textContent=S.on?'recording':'stopped';$('#tab').classList.toggle('rec',S.on);toast(S.on?'Tracking started':'Tracking stopped');stat()
+}
+$('#bToggle').onclick=toggle;
+$('#bUndo').onclick=()=>{const c=S.clicks.pop();if(!c)return toast('No clicks to undo');if(c.rage)S.rage--;log('Undid last click');render()};
+$('#bReset').onclick=()=>{Object.assign(S,{clicks:[],moves:[],scrolls:0,maxDepth:0,hidden:0,elapsed:0,rage:0,log:[]});S.start=Date.now();secs.forEach(s=>S.dwell[s.dataset.sec]=0);$('#log').innerHTML='<div>Nothing recorded yet.</div>';render();toast('Data cleared')};
+$('#bExport').onclick=()=>{
+ const t=S.elapsed+(S.on?(Date.now()-S.start)/1e3:0);
+ const out={page:document.title,exportedAt:new Date().toISOString(),viewport:{w:innerWidth,h:innerHeight},pageHeight:DOC(),trackedSeconds:+t.toFixed(1),maxScrollDepth:+S.maxDepth.toFixed(3),scrollEvents:S.scrolls,secondsTabHidden:+S.hidden.toFixed(1),rageClicks:S.rage,sectionSecondsInView:S.dwell,clicks:S.clicks,mouseMoves:S.moves,log:S.log.slice().reverse()};
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(out,null,2)],{type:'application/json'}));a.download='tracking-data.json';a.click();toast('Exported tracking-data.json')
+};
+$$('[data-v]').forEach(b=>b.onclick=()=>{const v=b.dataset.v;S.view[v]=!S.view[v];b.classList.toggle('on',S.view[v]);draw()});
+$$('[data-p]').forEach(b=>b.onclick=()=>{$$('[data-p]').forEach(x=>x.classList.toggle('on',x===b));$$('.pane').forEach(p=>p.hidden=p.id!==b.dataset.p);if(b.dataset.p==='sc')scatter()});
+$('#tab').onclick=()=>{const p=$('#panel');p.hidden=!p.hidden;$('#tab').setAttribute('aria-expanded',!p.hidden)};
+addEventListener('resize',()=>draw());
+addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(!$('#modal').hidden)closeM();else if(!$('#panel').hidden)$('#tab').click()});
+
+/* ---- store ---- */
+const P=[
+{id:1,n:'Apple MacBook Air 13" M3',b:'Apple',c:'ultra',h:215,pr:1099,cpu:'Apple M3 (8-core)',ram:'8 to 24 GB',st:'256 GB to 2 TB SSD',disp:'13.6" Liquid Retina',bat:18,w:1.24,best:'Students, travel, everyday work',d:'Fanless and silent, with the longest battery life in this range.',pros:['Silent, no fan','All-day battery','Excellent speakers and trackpad']},
+{id:2,n:'Dell XPS 13',b:'Dell',c:'ultra',h:190,pr:999,cpu:'Intel Core Ultra 5/7',ram:'16 to 32 GB',st:'512 GB to 1 TB SSD',disp:'13.4" FHD+ or OLED',bat:14,w:1.2,best:'Office work, travel, Windows users',d:'A compact Windows ultrabook with a premium aluminium build and near-borderless screen.',pros:['Very compact','Bright, sharp display','Strong Windows ecosystem']},
+{id:3,n:'ASUS ROG Zephyrus G14',b:'ASUS',c:'gaming',h:330,pr:1449,cpu:'AMD Ryzen 9 + RTX 4060/4070',ram:'16 to 32 GB',st:'1 TB SSD',disp:'14" OLED, 120 Hz',bat:10,w:1.5,best:'Gaming on the go, light creative work',d:'Gaming power in a slim 14-inch body that is easy to carry to class or work.',pros:['Portable for a gaming laptop','OLED screen','Good battery for its class']},
+{id:4,n:'Lenovo Legion 5',b:'Lenovo',c:'gaming',h:270,pr:1099,cpu:'AMD Ryzen 7 + RTX 4060',ram:'16 GB',st:'512 GB to 1 TB SSD',disp:'15.6" FHD, 165 Hz',bat:6,w:2.4,best:'Value gaming at a desk',d:'Strong cooling and a high refresh rate screen at a sensible price.',pros:['Great performance per dollar','Comfortable keyboard','Good cooling']},
+{id:5,n:'Apple MacBook Pro 14" M3 Pro',b:'Apple',c:'creator',h:250,pr:1999,cpu:'Apple M3 Pro',ram:'18 to 36 GB',st:'512 GB to 4 TB SSD',disp:'14.2" Liquid Retina XDR',bat:17,w:1.6,best:'Video editing, music, development',d:'Sustained performance on battery with one of the best laptop displays available.',pros:['Brilliant XDR display','Fast sustained performance','Many ports, including HDMI and SD']},
+{id:6,n:'ASUS Vivobook Pro 15 OLED',b:'ASUS',c:'creator',h:20,pr:1199,cpu:'Intel Core i7 + RTX 4050 (varies)',ram:'16 GB',st:'1 TB SSD',disp:'15.6" 3.2K OLED',bat:8,w:1.8,best:'Photo editing, design, 3D basics',d:'A colourful OLED screen and a dedicated GPU for creative work at a lower price.',pros:['Vivid OLED panel','Dedicated NVIDIA GPU','Lower price than workstation laptops']},
+{id:7,n:'Acer Aspire 5',b:'Acer',c:'budget',h:170,pr:549,cpu:'Intel Core i5 or Ryzen 5',ram:'8 to 16 GB',st:'256 to 512 GB SSD',disp:'15.6" FHD IPS',bat:8,w:1.8,best:'Study, documents, streaming',d:'A dependable all-rounder that covers everyday tasks without fuss.',pros:['Good value','Full-size keyboard','Upgradable RAM on many versions']},
+{id:8,n:'Lenovo IdeaPad Slim 3',b:'Lenovo',c:'budget',h:140,pr:449,cpu:'Ryzen 5 or Core i3',ram:'8 GB',st:'256 to 512 GB SSD',disp:'15.6" FHD',bat:7,w:1.6,best:'Classes, browsing, video calls',d:'A light, low-cost laptop for the basics.',pros:['Lowest price here','Light for 15.6"','Simple and reliable']}];
+const U={a:n=>'https://www.amazon.com/s?k='+encodeURIComponent(n),x:n=>'https://www.aliexpress.com/wholesale?SearchText='+encodeURIComponent(n),e:n=>'https://www.ebay.com/sch/i.html?_nkw='+encodeURIComponent(n)};
+const buy=(p,all)=>`<span class="lnks"><a class="lnk am" href="${U.a(p.n)}" target="_blank" rel="noopener sponsored">Buy on Amazon</a><a class="lnk ali" href="${U.x(p.n)}" target="_blank" rel="noopener sponsored">AliExpress</a>${all?`<a class="lnk" href="${U.e(p.n)}" target="_blank" rel="noopener sponsored">eBay</a>`:''}</span>`;
+const $m=n=>'$'+n.toLocaleString(),CN={ultra:'Ultrabook',gaming:'Gaming',creator:'Creator',budget:'Budget'};
+const pic=p=>{const g='g'+p.id,a=p.h,b=(a+50)%360;return `<div class="pic"><svg viewBox="0 0 240 160" role="img" aria-label="${p.n}"><defs><linearGradient id="${g}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(${a},85%,55%)"/><stop offset="1" stop-color="hsl(${b},85%,45%)"/></linearGradient></defs><rect x="40" y="14" width="160" height="104" rx="9" fill="#1b2236"/><rect x="46" y="20" width="148" height="92" rx="4" fill="url(#${g})"/><rect x="58" y="34" width="60" height="6" rx="3" fill="#fff" opacity=".85"/><rect x="58" y="46" width="90" height="4" rx="2" fill="#fff" opacity=".5"/><rect x="58" y="56" width="70" height="4" rx="2" fill="#fff" opacity=".5"/><circle cx="168" cy="88" r="14" fill="#fff" opacity=".25"/><path d="M18 126h204l-10 14a8 8 0 0 1-7 4H35a8 8 0 0 1-7-4z" fill="#c9d0de"/><rect x="100" y="126" width="40" height="5" rx="2.5" fill="#9aa4b8"/>${p.c==='gaming'?`<rect x="30" y="141" width="180" height="3" rx="1.5" fill="url(#${g})"/>`:''}</svg></div>`};
+let F='all',Q='',O='f',saved=new Set();
+try{saved=new Set(JSON.parse(localStorage.getItem('orbyt-saved')||'[]'))}catch(e){}
+const byId=id=>P.find(p=>p.id==id);
+function grid(){
+ let l=P.filter(p=>(F==='all'||p.c===F)&&(p.n+p.cpu+p.b).toLowerCase().includes(Q));
+ const s={l:(a,b)=>a.pr-b.pr,h:(a,b)=>b.pr-a.pr,b:(a,b)=>b.bat-a.bat,w:(a,b)=>a.w-b.w}[O];if(s)l.sort(s);
+ $('#grid').innerHTML=l.length?l.map(p=>`<article class="card">${pic(p)}<span class="tag">${CN[p.c]}</span><h3>${p.n}</h3><small>${p.disp} · ${p.ram.split(' ')[0]} GB+ · ${p.bat} h battery</small><span class="price">from ${$m(p.pr)}</span><p>${p.d}</p>${buy(p)}<div class="row"><button class="btn" data-open="${p.id}">Details</button><button class="btn ghost" data-save="${p.id}">${saved.has(p.id)?'Saved ✓':'Save'}</button></div></article>`).join(''):'<div class="empty">No laptops match. Clear the search or choose All.</div>';
+}
+function table(){$('#tbl').innerHTML='<tr><th>Model</th><th>Processor</th><th>Display</th><th>Battery</th><th>Weight</th><th>From</th><th>Buy</th></tr>'+P.map(p=>`<tr><td><button class="chip" data-open="${p.id}">${p.n}</button></td><td>${p.cpu}</td><td>${p.disp}</td><td>up to ${p.bat} h</td><td>${p.w} kg</td><td>${$m(p.pr)}</td><td>${buy(p)}</td></tr>`).join('')}
+function openM(html){const m=$('#modal');m.querySelector('.box').innerHTML='<button class="x" data-close aria-label="Close">×</button>'+html;m.hidden=false;m.querySelector('.x').focus()}
+function closeM(){$('#modal').hidden=true}
+function detail(id){const p=byId(id);openM(`<div>${pic(p)}<p style="margin-top:12px">${p.d}</p><ul>${p.pros.map(x=>`<li>${x}</li>`).join('')}</ul></div><div><span class="tag" style="color:var(--accent);font-weight:600">${CN[p.c]}</span><h2>${p.n}</h2><span class="price" style="font:700 1.5rem var(--head)">from ${$m(p.pr)}</span><dl><dt>Processor</dt><dd>${p.cpu}</dd><dt>Memory</dt><dd>${p.ram}</dd><dt>Storage</dt><dd>${p.st}</dd><dt>Display</dt><dd>${p.disp}</dd><dt>Battery</dt><dd>up to ${p.bat} h</dd><dt>Weight</dt><dd>${p.w} kg</dd><dt>Best for</dt><dd>${p.best}</dd></dl>${buy(p,1)}<div class="row"><button class="btn ghost" data-save="${p.id}">${saved.has(p.id)?'Saved ✓':'Save to shortlist'}</button></div><small style="color:var(--mute)">Price is indicative. Confirm the exact configuration on the store page.</small></div>`)}
+function cart(){
+ $('#cc').textContent=saved.size;const L=[...saved].map(byId).filter(Boolean),c=$('#cart');
+ c.innerHTML=`<h3>Shortlist <span class="pill">${L.length}</span></h3>`+(L.length?L.map(p=>`<div class="it"><b><span>${p.n}</span><span>${$m(p.pr)}</span></b>${buy(p)}<button class="chip" data-save="${p.id}" style="margin-top:6px">Remove</button></div>`).join('')+`<p><b>Total from ${$m(L.reduce((s,p)=>s+p.pr,0))}</b></p><button class="btn ghost" data-copy>Copy list</button>`:'<p>Nothing saved yet. Press Save on any laptop and compare it across stores here.</p>');
+ try{localStorage.setItem('orbyt-saved',JSON.stringify([...saved]))}catch(e){}
+}
+function setF(f){F=f;$$('.chip[data-f]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.f===f));grid()}
+document.addEventListener('click',e=>{
+ const t=e.target.closest('[data-open],[data-save],[data-close],[data-copy],[data-pick]');
+ if(e.target.id==='modal')return closeM();
+ if(!t)return;
+ if(t.dataset.open){closeM();detail(t.dataset.open)}
+ else if(t.dataset.close!==undefined)closeM();
+ else if(t.dataset.save){const id=+t.dataset.save;saved.has(id)?saved.delete(id):saved.add(id);toast(saved.has(id)?'Saved to shortlist':'Removed from shortlist');grid();cart();if(!$('#modal').hidden)detail(id)}
+ else if(t.dataset.copy){const txt=[...saved].map(byId).map(p=>`${p.n} (${$m(p.pr)}): ${U.a(p.n)}`).join('\n');(navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>toast('List copied'),()=>toast('Copy not allowed in this browser'))}
+ else if(t.dataset.pick){setF(t.dataset.pick);closeM();$('#range').scrollIntoView()}
+});
+$$('.chip[data-f]').forEach(c=>c.onclick=()=>setF(c.dataset.f));
+$('#q').oninput=e=>{Q=e.target.value.trim().toLowerCase();grid()};
+$('#so').onchange=e=>{O=e.target.value;grid()};
+$('#cartBtn').onclick=()=>{$('#cart').hidden=!$('#cart').hidden};
+$('#ht').onclick=()=>$('#compare').scrollIntoView();
+$('#fm').onclick=()=>openM('<div style="grid-column:1/-1"><h2>What will you use it for?</h2><div class="chips"><button class="chip" data-pick="budget">Study and everyday tasks</button><button class="chip" data-pick="ultra">Travel and long battery life</button><button class="chip" data-pick="gaming">Gaming</button><button class="chip" data-pick="creator">Video, photo or design</button></div></div>');
+$('#af').onsubmit=e=>{e.preventDefault();toast('Alert saved on this device for '+$('#ae').value);e.target.reset()};
+grid();table();cart();
+stat();
+})();
+</script>
+</body>
+</html>
